@@ -9,18 +9,5 @@
       "default": "admin123",
       "required": false
     }
-  },
-  "functions": {
-    "api/**/*.ts": {
-      "runtime": "nodejs20.x",
-      "memory": 1024
-    }
-  },
-  "redirects": [
-    {
-      "source": "/opencode",
-      "destination": "http://localhost:8080",
-      "statusCode": 307
-    }
-  ]
+  }
 }
