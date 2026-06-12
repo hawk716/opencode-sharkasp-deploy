@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put, get, delete as deleteBlob, list } from '@vercel/blob';
+import { put, del as deleteBlob, list } from '@vercel/blob';
 import { v4 as uuidv4 } from 'uuid';
 
 // حفظ الجلسة
@@ -69,16 +69,17 @@ export async function GET(req: NextRequest) {
     }
 
     if (action === 'get-session' && sessionId) {
-      const blob = await get(`sessions/${sessionId}/data.json`);
+      const blobUrl = `https://${process.env.BLOB_READ_WRITE_TOKEN ? 'your-blob-store' : ''}.public.blob.vercel-storage.com/sessions/${sessionId}/data.json`;
+      const response = await fetch(blobUrl);
       
-      if (!blob) {
+      if (!response.ok) {
         return NextResponse.json(
           { error: 'Session not found' },
           { status: 404 }
         );
       }
 
-      const data = JSON.parse(blob.toString());
+      const data = await response.json();
       return NextResponse.json(data, { status: 200 });
     }
 

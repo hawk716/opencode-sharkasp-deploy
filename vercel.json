@@ -1,13 +1,32 @@
 {
-  "buildCommand": "pnpm build",
-  "devCommand": "pnpm dev",
-  "installCommand": "pnpm install",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
   "framework": "nextjs",
+  "nodeVersion": "20.x",
   "env": {
     "OPENCODE_SERVER_PASSWORD": {
-      "description": "Password for OpenCode web interface",
+      "description": "كلمة مرور خادم OpenCode",
       "default": "admin123",
       "required": false
+    },
+    "NEXT_PUBLIC_OPENCODE_URL": {
+      "description": "رابط OpenCode العام",
+      "default": "http://localhost:8080",
+      "required": false
     }
-  }
+  },
+  "buildOutputDirectory": ".next",
+  "functions": {
+    "app/api/**/*.ts": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/opencode/status",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }
