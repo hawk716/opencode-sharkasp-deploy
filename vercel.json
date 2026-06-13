@@ -1,6 +1,5 @@
 {
   "framework": "nextjs",
-  "nodeVersion": "20.x",
   "env": {
     "OPENCODE_SERVER_PASSWORD": {
       "description": "كلمة مرور خادم OpenCode",
