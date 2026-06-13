@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  opencode:
+    image: node:20-alpine
+    container_name: opencode-dev
+    working_dir: /app
+    volumes:
+      - opencode-data:/root/.opencode
+    environment:
+      - OPENCODE_SERVER_PASSWORD=admin123
+      - OPENCODE_USERNAME=opencode
+      - NODE_ENV=production
+    ports:
+      - "8080:8080"
+    command: sh -c "npm install -g opencode-ai && opencode web --hostname 0.0.0.0 --port 8080"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  opencode-data:
+    driver: local
