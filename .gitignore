@@ -5,6 +5,7 @@ __v0_jsx-dev-runtime.ts
 .snowflake/
 .v0-trash/
 .vercel/
+# Note: .v0/ directory is NOT ignored - it contains build scripts needed for deployment
 
 # Environment variables
 .env*.local
