@@ -87,12 +87,14 @@ export default function OpencodePage() {
             <p className="text-sm font-medium text-muted-foreground">
               OpenCode AI متاح وجاهز للاستخدام
             </p>
-            <button
-              onClick={() => window.location.href = '/api/opencode/web'}
-              className="rounded-lg bg-primary px-6 py-2 font-medium text-primary-foreground hover:opacity-90"
+            <a
+              href="http://localhost:8080"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-primary px-6 py-2 font-medium text-primary-foreground hover:opacity-90 inline-block"
             >
               افتح OpenCode Web
-            </button>
+            </a>
           </div>
         </div>
       </div>

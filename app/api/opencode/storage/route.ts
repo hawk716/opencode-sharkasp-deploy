@@ -69,18 +69,26 @@ export async function GET(req: NextRequest) {
     }
 
     if (action === 'get-session' && sessionId) {
-      const blobUrl = `https://${process.env.BLOB_READ_WRITE_TOKEN ? 'your-blob-store' : ''}.public.blob.vercel-storage.com/sessions/${sessionId}/data.json`;
-      const response = await fetch(blobUrl);
-      
-      if (!response.ok) {
+      try {
+        const blobs = await list({ prefix: `sessions/${sessionId}/` });
+        const dataBlob = blobs.blobs.find(b => b.pathname.endsWith('data.json'));
+        
+        if (!dataBlob) {
+          return NextResponse.json(
+            { error: 'Session not found' },
+            { status: 404 }
+          );
+        }
+
+        const response = await fetch(dataBlob.downloadUrl);
+        const data = await response.json();
+        return NextResponse.json(data, { status: 200 });
+      } catch (err) {
         return NextResponse.json(
-          { error: 'Session not found' },
-          { status: 404 }
+          { error: 'Failed to retrieve session' },
+          { status: 500 }
         );
       }
-
-      const data = await response.json();
-      return NextResponse.json(data, { status: 200 });
     }
 
     if (action === 'list-files' && sessionId) {
