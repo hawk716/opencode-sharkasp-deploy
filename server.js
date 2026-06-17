@@ -1,18 +1,38 @@
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 // SharkASP/IIS passes the port via the PORT environment variable
 const port = process.env.PORT || 3000;
 
-const startOpenCode = (customPath = false) => {
-    console.log(`Attempting to start opencode ${customPath ? 'using custom PATH' : 'using default PATH'} on port ${port}...`);
+console.log(`Starting OpenCode Setup on port ${port}...`);
+
+const homeDir = process.env.HOME || process.env.USERPROFILE;
+const opencodeBinPath = path.join(homeDir, '.opencode', 'bin');
+const opencodeExe = path.join(opencodeBinPath, 'opencode');
+
+// Function to ensure installation via curl
+const ensureInstallation = () => {
+    if (!fs.existsSync(opencodeExe)) {
+        console.log('OpenCode not found. Installing via curl...');
+        try {
+            execSync('curl -fsSL https://opencode.ai/install | bash', { stdio: 'inherit' });
+            console.log('Installation completed.');
+        } catch (err) {
+            console.error('Installation failed:', err.message);
+        }
+    } else {
+        console.log('OpenCode is already installed.');
+    }
+};
+
+const startOpenCode = () => {
+    ensureInstallation();
+
+    console.log(`Launching: opencode web --hostname 0.0.0.0 --port ${port} --password o`);
 
     const env = { ...process.env };
-    if (customPath) {
-        const homeDir = process.env.HOME || process.env.USERPROFILE;
-        const opencodeBinPath = path.join(homeDir, '.opencode', 'bin');
-        env.PATH = `${opencodeBinPath}${path.delimiter}${env.PATH}`;
-    }
+    env.PATH = `${opencodeBinPath}${path.delimiter}${env.PATH}`;
 
     const opencode = spawn('opencode', [
         'web',
@@ -26,26 +46,17 @@ const startOpenCode = (customPath = false) => {
     });
 
     opencode.on('error', (err) => {
-        if (!customPath) {
-            console.log('Failed to start using default PATH. Retrying with custom PATH...');
-            startOpenCode(true);
-        } else {
-            console.error(`Failed to start opencode even with custom PATH: ${err.message}`);
-        }
+        console.error(`Failed to start opencode: ${err.message}`);
     });
 
     opencode.on('close', (code) => {
-        if (code !== 0 && !customPath) {
-            console.log(`Process exited with code ${code}. Retrying with custom PATH...`);
-            startOpenCode(true);
-        } else {
-            console.log(`OpenCode process exited with code ${code}`);
-        }
+        console.log(`OpenCode process exited with code ${code}`);
+        // Optional: Restart if it crashes
+        setTimeout(startOpenCode, 5000);
     });
 };
 
-// Start the initial attempt
-startOpenCode(false);
+startOpenCode();
 
-// Keep the process alive
+// Keep the Node process alive
 setInterval(() => {}, 1000);
