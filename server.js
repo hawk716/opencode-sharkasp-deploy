@@ -1,45 +1,42 @@
 const { spawn } = require('child_process');
+const path = require('path');
 
-// SharkASP/IIS يمرر المنفذ عبر متغير البيئة PORT
+// SharkASP/IIS passes the port via the PORT environment variable
 const port = process.env.PORT || 3000;
 
-console.log(`Starting opencode.exe on port ${port} with password "o"...`);
+console.log(`Starting opencode on port ${port} with password "o"...`);
 
 /**
- * استخدام الأمر الذي طلبه المستخدم:
- * opencode.exe web --hostname 0.0.0.0 --port 3000
- * ملاحظة: قمنا بإضافة --password o كما هو مطلوب.
+ * التعديلات المطلوبة:
+ * 1. دعم PATH=$HOME/.opencode/bin:$PATH
+ * 2. أمر التشغيل: opencode web --hostname 0.0.0.0 --port 3000 --password o
  */
-const opencode = spawn('opencode.exe', [
+
+const homeDir = process.env.HOME || process.env.USERPROFILE;
+const opencodeBinPath = path.join(homeDir, '.opencode', 'bin');
+
+// تحديث بيئة التشغيل لتشمل المسار الجديد
+const env = { ...process.env };
+env.PATH = `${opencodeBinPath}${path.delimiter}${env.PATH}`;
+
+const opencode = spawn('opencode', [
     'web',
     '--hostname', '0.0.0.0',
     '--port', port.toString(),
     '--password', 'o'
 ], {
     shell: true,
-    stdio: 'inherit'
+    stdio: 'inherit',
+    env: env
 });
 
 opencode.on('error', (err) => {
-    console.error(`Failed to start opencode.exe: ${err.message}`);
-    console.log('Attempting fallback to npm install and run...');
-    
-    // محاولة تشغيل باستخدام npx كخيار بديل إذا لم يكن .exe متاحاً في المسار
-    const fallback = spawn('npx', [
-        'opencode-ai',
-        'web',
-        '--hostname', '0.0.0.0',
-        '--port', port.toString(),
-        '--password', 'o'
-    ], {
-        shell: true,
-        stdio: 'inherit'
-    });
+    console.error(`Failed to start opencode: ${err.message}`);
 });
 
 opencode.on('close', (code) => {
     console.log(`OpenCode process exited with code ${code}`);
 });
 
-// الحفاظ على العملية نشطة
+// Keep the process alive
 setInterval(() => {}, 1000);
