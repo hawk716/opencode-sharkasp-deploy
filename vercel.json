@@ -1,6 +1,0 @@
-{
-  "framework": null,
-  "installCommand": "npm install -g opencode-ai",
-  "buildCommand": "echo 'No build step needed'",
-  "devCommand": "opencode web --hostname 0.0.0.0 --port 3000 --password o"
-}
