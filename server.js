@@ -1,53 +1,45 @@
 const { spawn } = require('child_process');
 
-// الحصول على المنفذ من متغيرات البيئة أو استخدام 3000 كافتراضي
+// SharkASP/IIS يمرر المنفذ عبر متغير البيئة PORT
 const port = process.env.PORT || 3000;
 
-console.log(`Launching OpenCode AI (Executable) directly on port ${port}...`);
+console.log(`Starting opencode.exe on port ${port} with password "o"...`);
 
 /**
- * ملاحظة: في بيئة Windows/IIS (مثل SharkASP.NET)، يفضل استخدام الملف التنفيذي مباشرة.
- * سيحاول السكريبت تشغيل opencode.exe المتوفر في المسار.
+ * استخدام الأمر الذي طلبه المستخدم:
+ * opencode.exe web --hostname 0.0.0.0 --port 3000
+ * ملاحظة: قمنا بإضافة --password o كما هو مطلوب.
  */
 const opencode = spawn('opencode.exe', [
-    'web', 
-    '--hostname', '0.0.0.0', 
-    '--port', port.toString()
+    'web',
+    '--hostname', '0.0.0.0',
+    '--port', port.toString(),
+    '--password', 'o'
 ], {
-    env: { 
-        ...process.env, 
-        OPENCODE_SERVER_PASSWORD: process.env.OPENCODE_SERVER_PASSWORD || 'admin123' 
-    },
     shell: true,
     stdio: 'inherit'
 });
 
 opencode.on('error', (err) => {
     console.error(`Failed to start opencode.exe: ${err.message}`);
-    console.log('Falling back to npx opencode-ai...');
+    console.log('Attempting fallback to npm install and run...');
     
-    // محاولة بديلة في حال عدم توفر الملف التنفيذي مباشرة
+    // محاولة تشغيل باستخدام npx كخيار بديل إذا لم يكن .exe متاحاً في المسار
     const fallback = spawn('npx', [
-        'opencode-ai', 
-        'web', 
-        '--hostname', '0.0.0.0', 
-        '--port', port.toString()
+        'opencode-ai',
+        'web',
+        '--hostname', '0.0.0.0',
+        '--port', port.toString(),
+        '--password', 'o'
     ], {
-        env: { 
-            ...process.env, 
-            OPENCODE_SERVER_PASSWORD: process.env.OPENCODE_SERVER_PASSWORD || 'admin123' 
-        },
         shell: true,
         stdio: 'inherit'
     });
 });
 
 opencode.on('close', (code) => {
-    if (code !== 0) {
-        console.log(`OpenCode process exited with code ${code}`);
-    }
+    console.log(`OpenCode process exited with code ${code}`);
 });
 
-// التعامل مع إنهاء العملية بشكل نظيف
-process.on('SIGTERM', () => opencode.kill());
-process.on('SIGINT', () => opencode.kill());
+// الحفاظ على العملية نشطة
+setInterval(() => {}, 1000);

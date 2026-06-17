@@ -1,12 +1,13 @@
 {
-  "name": "opencode-deploy",
+  "name": "opencode-sharkasp-deploy",
   "version": "1.0.0",
   "private": true,
+  "description": "Deployment of opencode-ai on SharkASP.NET",
+  "main": "server.js",
   "scripts": {
-    "install-opencode": "npm install -g opencode-ai",
-    "install-opencode-curl": "curl -fsSL https://opencode.ai/install | bash",
-    "start": "opencode web --hostname 0.0.0.0 --port 3000 --password o",
-    "dev": "npm run start"
+    "install": "npm install -g opencode-ai",
+    "build": "echo 'No build step required'",
+    "start": "node server.js"
   },
   "dependencies": {
     "opencode-ai": "^1.17.7"
