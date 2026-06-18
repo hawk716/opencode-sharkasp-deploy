@@ -3,11 +3,14 @@ const PORT = process.env.PORT || 3000;
 
 console.log(`Starting OpenCode on port ${PORT}...`);
 
-// تشغيل أمر opencode web
+// تشغيل أمر opencode web مع إضافة كلمة مرور
+// ملاحظة: اسم المستخدم الافتراضي عادة ما يكون فارغاً أو 'admin' 
+// وكلمة المرور هنا سنضعها 'o' كما كانت في الملف السابق لسهولة الدخول
 const opencode = spawn('opencode', [
   'web',
   '--hostname', '0.0.0.0',
-  '--port', PORT.toString()
+  '--port', PORT.toString(),
+  '--password', 'o'
 ], {
   shell: true,
   stdio: 'inherit'
